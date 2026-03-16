@@ -4,7 +4,16 @@ export interface ZynLogEntry {
   mentalHealth: number | null;
   comments: string;
   emergency: boolean;
-  weeklyInsight: string;
+}
+
+export interface WeeklySummaryEntry {
+  id: string;
+  weekStart: string;
+  weekEnd: string;
+  totalZyns: number;
+  emergencyCount: number;
+  avgMentalHealth: number;
+  summary: string;
 }
 
 export interface BotConfig {

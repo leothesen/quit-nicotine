@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { createBot } from "./bot";
 import { startScheduler } from "./scheduler";
 

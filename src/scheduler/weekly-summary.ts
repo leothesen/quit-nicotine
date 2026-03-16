@@ -1,5 +1,5 @@
 import { Bot } from "grammy";
-import { getConfig, getRecentLogs, updateZynLog } from "../services/notion";
+import { getConfig, getRecentLogs, createWeeklySummaryEntry } from "../services/notion";
 import { generateWeeklySummary } from "../services/claude";
 
 export async function sendWeeklySummary(bot: Bot<any>): Promise<void> {
@@ -22,6 +22,22 @@ export async function sendWeeklySummary(bot: Bot<any>): Promise<void> {
     parse_mode: "Markdown",
   });
 
-  // Tag the most recent log with the weekly insight
-  await updateZynLog(logs[0].id, { weeklyInsight: summary.slice(0, 2000) });
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(weekStart.getDate() - 7);
+
+  const withMH = logs.filter((l) => l.mentalHealth !== null);
+  const avgMH =
+    withMH.length > 0
+      ? withMH.reduce((s, l) => s + l.mentalHealth!, 0) / withMH.length
+      : 0;
+
+  await createWeeklySummaryEntry({
+    weekStart: weekStart.toISOString(),
+    weekEnd: now.toISOString(),
+    totalZyns: logs.length,
+    emergencyCount: logs.filter((l) => l.emergency).length,
+    avgMentalHealth: avgMH,
+    summary,
+  });
 }

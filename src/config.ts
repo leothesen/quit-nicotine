@@ -9,5 +9,6 @@ export const config = {
   notionToken: requireEnv("NOTION_TOKEN"),
   zynLogDbId: requireEnv("NOTION_ZYN_LOG_DB_ID"),
   configDbId: requireEnv("NOTION_CONFIG_DB_ID"),
+  weeklySummariesDbId: requireEnv("NOTION_WEEKLY_SUMMARIES_DB_ID"),
   anthropicApiKey: requireEnv("ANTHROPIC_API_KEY"),
 };

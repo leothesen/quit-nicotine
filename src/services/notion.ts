@@ -1,6 +1,6 @@
 import { Client } from "@notionhq/client";
 import { config } from "../config";
-import { BotConfig, ZynLogEntry } from "../types";
+import { BotConfig, ZynLogEntry, WeeklySummaryEntry } from "../types";
 
 const notion = new Client({ auth: config.notionToken });
 
@@ -82,7 +82,7 @@ export async function createZynLog(entry: {
 
 export async function updateZynLog(
   pageId: string,
-  updates: { mentalHealth?: number; comments?: string; weeklyInsight?: string }
+  updates: { mentalHealth?: number; comments?: string }
 ): Promise<void> {
   const properties: Record<string, any> = {};
 
@@ -94,12 +94,6 @@ export async function updateZynLog(
       rich_text: [{ text: { content: updates.comments } }],
     };
   }
-  if (updates.weeklyInsight !== undefined) {
-    properties["Weekly Insight"] = {
-      rich_text: [{ text: { content: updates.weeklyInsight } }],
-    };
-  }
-
   await notion.pages.update({ page_id: pageId, properties });
 }
 
@@ -125,10 +119,6 @@ export async function getRecentLogs(days: number): Promise<ZynLogEntry[]> {
       comments:
         props.Comments?.rich_text?.map((t: any) => t.plain_text).join("") ?? "",
       emergency: props.Emergency?.checkbox ?? false,
-      weeklyInsight:
-        props["Weekly Insight"]?.rich_text
-          ?.map((t: any) => t.plain_text)
-          .join("") ?? "",
     };
   });
 }
@@ -146,4 +136,34 @@ export async function getTodayCount(): Promise<number> {
   });
 
   return results.length;
+}
+
+// --- Weekly Summaries ---
+
+export async function createWeeklySummaryEntry(entry: {
+  weekStart: string;
+  weekEnd: string;
+  totalZyns: number;
+  emergencyCount: number;
+  avgMentalHealth: number;
+  summary: string;
+}): Promise<string> {
+  const page = await notion.pages.create({
+    parent: { database_id: config.weeklySummariesDbId },
+    properties: {
+      Name: {
+        title: [{ text: { content: `Week of ${entry.weekStart.slice(0, 10)}` } }],
+      },
+      "Week Start": { date: { start: entry.weekStart } },
+      "Week End": { date: { start: entry.weekEnd } },
+      "Total Zyns": { number: entry.totalZyns },
+      "Emergency Count": { number: entry.emergencyCount },
+      "Avg Mental Health": { number: parseFloat(entry.avgMentalHealth.toFixed(1)) },
+      Summary: {
+        rich_text: [{ text: { content: entry.summary.slice(0, 2000) } }],
+      },
+    },
+  });
+
+  return page.id;
 }
