@@ -1,0 +1,24 @@
+{
+  "name": "quit-nicotine",
+  "version": "1.0.0",
+  "description": "Telegram bot to help quit Zyn nicotine pouches",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@grammyjs/conversations": "^2.0.3",
+    "@notionhq/client": "^2.2.15",
+    "grammy": "^1.35.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
