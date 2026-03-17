@@ -55,7 +55,16 @@ async function generate(userMessage: string): Promise<string> {
 export async function generateConfirmation(streakHours: number, emergency: boolean): Promise<string> {
   const days = Math.floor(streakHours / 24);
   const hours = Math.floor(streakHours % 24);
-  const streakLabel = days > 0 ? `${days} days and ${hours} hours` : `${Math.floor(streakHours)} hours`;
+  const minutes = Math.floor((streakHours % 1) * 60);
+
+  let streakLabel: string;
+  if (days > 0) {
+    streakLabel = hours > 0 ? `${days} days and ${hours} hours` : `${days} days`;
+  } else if (streakHours >= 1) {
+    streakLabel = minutes > 0 ? `${hours} hours and ${minutes} minutes` : `${hours} hours`;
+  } else {
+    streakLabel = `${minutes} minutes`;
+  }
 
   let milestoneContext: string;
   if (streakHours < 2) {
@@ -75,7 +84,11 @@ export async function generateConfirmation(streakHours: number, emergency: boole
   return generate(
     `SITUATION: User wants a Zyn${emergency ? " via EMERGENCY override" : ""}. They've been clean for ${streakLabel}. ${milestoneContext}
 
-Your job: Try to talk them out of it. Reference their specific streak and what they'd be throwing away. Make them feel the weight of resetting. Then end with a short confirmation question like "Are you sure?" or "Do you really want to do this?" — keep the question part brief.${emergency ? " Extra shame for using emergency." : ""}`
+Your job: Try to talk them out of it. Reference their specific streak and what they'd be throwing away. Make them feel the weight of resetting.${emergency ? " Extra shame for using emergency." : ""}
+
+You MUST end your message with exactly this line on its own:
+
+Are you sure you want to have one? <b>yes</b> or <b>no</b>`
   );
 }
 
