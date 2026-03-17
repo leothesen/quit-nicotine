@@ -94,7 +94,15 @@ Are you sure you want to have one? <b>yes</b> or <b>no</b>`
 
 export async function generateDenial(timeRemaining: string): Promise<string> {
   return generate(
-    `SITUATION: User asked for a Zyn. Cooldown has NOT passed — ${timeRemaining} remaining. Deny them. Make the wait feel connected to what nicotine is doing to their hair and brain chemistry right now.`
+    `SITUATION: User asked for a Zyn. Cooldown has NOT passed.
+
+Your response MUST start with exactly these two lines:
+
+<b>No.</b>
+
+You must wait <code>${timeRemaining}</code> before you can have another one.
+
+After those two lines, add a short sassy remark (1-2 sentences) about what nicotine is doing to their hair and brain chemistry. Do NOT alter or rephrase the first two lines.`
   );
 }
 
