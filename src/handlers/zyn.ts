@@ -1,7 +1,16 @@
 import { Context } from "grammy";
 import { type ConversationFlavor } from "@grammyjs/conversations";
 import { getConfig, createZynLog } from "../services/notion";
-import { getDenial, getApproval, formatTimeRemaining } from "../services/personality";
+import { generateDenial, generateApproval } from "../services/claude";
+
+function formatTimeRemaining(ms: number): string {
+  const totalMinutes = Math.ceil(ms / 60_000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h`;
+  return `${minutes}m`;
+}
 
 type MyContext = ConversationFlavor<Context>;
 
@@ -22,7 +31,8 @@ export async function handleZyn(ctx: MyContext): Promise<void> {
 
     if (elapsed < cooldownMs) {
       const remaining = cooldownMs - elapsed;
-      await ctx.reply(getDenial(formatTimeRemaining(remaining)));
+      const denial = await generateDenial(formatTimeRemaining(remaining));
+      await ctx.reply(denial);
       return;
     }
   }
@@ -30,6 +40,7 @@ export async function handleZyn(ctx: MyContext): Promise<void> {
   const timestamp = new Date().toISOString();
   const pageId = await createZynLog({ timestamp, emergency: false });
 
-  await ctx.reply(getApproval());
+  const approval = await generateApproval();
+  await ctx.reply(approval);
   await ctx.conversation.enter("logZyn", pageId);
 }

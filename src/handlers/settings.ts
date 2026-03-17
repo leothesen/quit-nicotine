@@ -1,5 +1,6 @@
 import { Context } from "grammy";
 import { getConfig, updateConfig } from "../services/notion";
+import { generateIntervalChange } from "../services/claude";
 
 export async function handleInterval(ctx: Context): Promise<void> {
   const text = ctx.message?.text ?? "";
@@ -14,10 +15,11 @@ export async function handleInterval(ctx: Context): Promise<void> {
 
   const hours = parseFloat(arg);
   if (isNaN(hours) || hours <= 0) {
-    await ctx.reply("Give me a positive number. Even your Zyn habit has higher standards.");
+    await ctx.reply("Give me a positive number.");
     return;
   }
 
   await updateConfig({ intervalHours: hours });
-  await ctx.reply(`Cooldown set to ${hours} hour(s). The longer the better — for your hair.`);
+  const response = await generateIntervalChange(hours);
+  await ctx.reply(response);
 }

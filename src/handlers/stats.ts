@@ -1,5 +1,6 @@
 import { Context } from "grammy";
 import { getRecentLogs, getTodayCount, getConfig } from "../services/notion";
+import { generateStatsResponse } from "../services/claude";
 
 export async function handleStats(ctx: Context): Promise<void> {
   const [todayCount, weekLogs, botConfig] = await Promise.all([
@@ -24,13 +25,14 @@ export async function handleStats(ctx: Context): Promise<void> {
     streak = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   }
 
-  await ctx.reply(
-    `*Your Stats*\n\n` +
-      `Today: ${todayCount} Zyn${todayCount !== 1 ? "s" : ""}\n` +
-      `This week: ${weekLogs.length} total (${emergencyCount} emergency)\n` +
-      `Avg mental health: ${avgMH}/10\n` +
-      `Current streak: ${streak} without a Zyn\n` +
-      `Cooldown: ${botConfig.intervalHours}h`,
-    { parse_mode: "Markdown" }
-  );
+  const response = await generateStatsResponse({
+    todayCount,
+    weekTotal: weekLogs.length,
+    emergencyCount,
+    avgMentalHealth: avgMH,
+    streak,
+    cooldownHours: botConfig.intervalHours,
+  });
+
+  await ctx.reply(response);
 }

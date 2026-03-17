@@ -1,6 +1,7 @@
 import { type Conversation, type ConversationFlavor } from "@grammyjs/conversations";
 import { Context } from "grammy";
 import { updateZynLog } from "../services/notion";
+import { generateLogResponse } from "../services/claude";
 
 type MyContext = ConversationFlavor<Context>;
 type MyConversation = Conversation<MyContext, MyContext>;
@@ -21,7 +22,7 @@ export async function logZynConversation(
       mentalHealth = num;
       break;
     }
-    await response.reply("Give me a number between 1 and 10. I know it's hard to count when you're this addicted.");
+    await response.reply("Give me a number between 1 and 10.");
   }
 
   await ctx.reply("How many mg? (e.g. 3, 6, 9)");
@@ -34,7 +35,7 @@ export async function logZynConversation(
       nicotineMg = mg;
       break;
     }
-    await mgResponse.reply("Give me a positive number. How many mg is on the tin?");
+    await mgResponse.reply("Give me a positive number.");
   }
 
   await ctx.reply("Any comments? How are you feeling? (or send /skip)");
@@ -49,12 +50,9 @@ export async function logZynConversation(
     updateZynLog(pageId, { mentalHealth, nicotineMg, comments })
   );
 
-  const shame =
-    mentalHealth <= 4
-      ? "Your mental health is in the gutter and you're still using Zyn. Think about that."
-      : mentalHealth <= 7
-        ? "Mid mental health, mid choices. At least you're self-aware."
-        : "High mental health score but still using Zyn? You don't even need it. Pathetic.";
+  const response = await conversation.external(() =>
+    generateLogResponse(mentalHealth, nicotineMg, comments)
+  );
 
-  await ctx.reply(`Logged. ${shame}`);
+  await ctx.reply(response);
 }

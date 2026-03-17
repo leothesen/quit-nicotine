@@ -1,6 +1,8 @@
 import { Bot } from "grammy";
 import { getConfig } from "../services/notion";
-import { getMilestoneMessage, MILESTONE_HOURS } from "../services/personality";
+import { generateMilestoneMessage } from "../services/claude";
+
+const MILESTONE_HOURS = [2, 4, 8, 12, 24, 48, 72];
 
 const sentMilestones = new Set<number>();
 
@@ -22,11 +24,9 @@ export async function checkMilestones(bot: Bot<any>): Promise<void> {
 
   for (const milestone of MILESTONE_HOURS) {
     if (elapsedHours >= milestone && !sentMilestones.has(milestone)) {
-      const message = getMilestoneMessage(milestone);
-      if (message) {
-        await bot.api.sendMessage(botConfig.chatId, message);
-        sentMilestones.add(milestone);
-      }
+      const message = await generateMilestoneMessage(milestone);
+      await bot.api.sendMessage(botConfig.chatId, message);
+      sentMilestones.add(milestone);
     }
   }
 }

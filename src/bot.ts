@@ -2,6 +2,7 @@ import { Bot, Context } from "grammy";
 import { conversations, createConversation, type ConversationFlavor } from "@grammyjs/conversations";
 import { config } from "./config";
 import { updateConfig } from "./services/notion";
+import { generateWelcome } from "./services/claude";
 import { handleZyn } from "./handlers/zyn";
 import { handleEmergency } from "./handlers/emergency";
 import { handleStats } from "./handlers/stats";
@@ -19,15 +20,8 @@ export function createBot(): Bot<MyContext> {
   bot.command("start", async (ctx) => {
     const chatId = ctx.chat.id;
     await updateConfig({ chatId });
-    await ctx.reply(
-      "Welcome to your Zyn accountability bot. I'm here to make you feel bad about your choices.\n\n" +
-        "Commands:\n" +
-        "/zyn — Ask permission for a Zyn\n" +
-        "/emergency — Emergency override (maximum shame)\n" +
-        "/stats — View your stats\n" +
-        "/interval — View/set cooldown hours\n\n" +
-        "Your hair follicles are counting on you."
-    );
+    const welcome = await generateWelcome();
+    await ctx.reply(welcome);
   });
 
   bot.command("zyn", handleZyn as any);
