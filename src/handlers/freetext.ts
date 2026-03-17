@@ -40,13 +40,13 @@ You always weave TWO themes into every response naturally:
 
 Your tone: brutally honest best friend with zero filter. Sarcastic, creative, punchy. You genuinely care underneath.
 
-You have tools available. Use them when the user's intent matches:
-- request_zyn: When the user wants a Zyn, asks for permission, says they're craving one, etc.
-- request_emergency: When the user wants to bypass the cooldown / needs one NOW / says it's urgent.
-- get_stats: When the user asks about their stats, progress, how they're doing, usage numbers.
-- set_interval: When the user wants to change their cooldown timer.
+You have tools available. ALWAYS use a tool when the user's intent matches, even if the message is just a single word:
+- request_zyn: ANY indication they want a Zyn — "zyn", "I want one", "craving", "can I", "pouch", "permission"
+- request_emergency: ANY urgency to bypass cooldown — "emergency", "need one now", "can't wait", "override", "urgent"
+- get_stats: ANY request for data — "stats", "how am I doing", "progress", "numbers", "streak", "count", "how many"
+- set_interval: ANY request to change cooldown — "set cooldown to X", "change interval", "set timer"
 
-If the user is just chatting, venting, asking questions, or talking about their journey — respond directly WITHOUT using any tools. Stay in character. Keep responses under 2-3 sentences. No emojis.
+When in doubt about whether to use a tool, USE THE TOOL. Only respond with text if the user is clearly just chatting, venting, or asking a question unrelated to the above actions. Keep text responses under 2-3 sentences. No emojis.
 
 FORMATTING — Use Telegram HTML tags naturally:
 - <b>bold</b> for milestones, key numbers, things that should hit hard
@@ -62,22 +62,22 @@ CRITICAL: ONLY use HTML tags for formatting. Never use *asterisks*, _underscores
 const TOOLS: Anthropic.Tool[] = [
   {
     name: "request_zyn",
-    description: "User wants to have a Zyn / is asking for permission / is craving one",
+    description: "User wants a Zyn, asks for permission, is craving, says things like 'zyn', 'I want one', 'can I have one', 'craving', 'need a pouch'",
     input_schema: { type: "object" as const, properties: {}, required: [] },
   },
   {
     name: "request_emergency",
-    description: "User wants to bypass the cooldown and have a Zyn immediately / says it's an emergency / can't wait",
+    description: "User wants to bypass cooldown, says 'emergency', 'I need one now', 'can't wait', 'override', 'urgent'",
     input_schema: { type: "object" as const, properties: {}, required: [] },
   },
   {
     name: "get_stats",
-    description: "User wants to see their stats / progress / how they're doing / usage numbers",
+    description: "User wants stats, progress, numbers. Trigger on: 'stats', 'how am I doing', 'progress', 'show me my stats', 'how many', 'streak', 'count'",
     input_schema: { type: "object" as const, properties: {}, required: [] },
   },
   {
     name: "set_interval",
-    description: "User wants to change their cooldown interval",
+    description: "User wants to change cooldown interval, says 'set cooldown', 'change interval', 'set timer'",
     input_schema: {
       type: "object" as const,
       properties: {
@@ -95,30 +95,23 @@ export async function handleFreeText(ctx: MyContext): Promise<void> {
   const chatId = ctx.chat!.id;
   addToHistory(chatId, "user", text);
 
-  // Build messages from history
-  const history = getHistory(chatId);
-  const messages: Anthropic.MessageParam[] = history.map((m) => ({
-    role: m.role,
-    content: m.content,
-  }));
-
   // Get current streak for context
   const botConfig = await getConfig();
   const streakInfo = botConfig.lastZynTime
     ? `User's current streak: ${Math.floor((Date.now() - new Date(botConfig.lastZynTime).getTime()) / 3_600_000)} hours without a Zyn.`
     : "No previous Zyn logged yet.";
 
-  const response = await anthropic.messages.create({
+  // Step 1: Route with ONLY the current message (no history) so tool detection is clean
+  const routeResponse = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 300,
-    temperature: 1,
+    temperature: 0,
     system: `${ROUTER_SYSTEM}\n\nContext: ${streakInfo} Cooldown: ${botConfig.intervalHours}h.`,
     tools: TOOLS,
-    messages,
+    messages: [{ role: "user", content: text }],
   });
 
-  // Check if Claude wants to use a tool
-  const toolUse = response.content.find((b) => b.type === "tool_use");
+  const toolUse = routeResponse.content.find((b) => b.type === "tool_use");
 
   if (toolUse) {
     switch (toolUse.name) {
@@ -133,7 +126,6 @@ export async function handleFreeText(ctx: MyContext): Promise<void> {
         return;
       case "set_interval": {
         const input = toolUse.input as { hours: number };
-        // Inject the interval into the message so handleInterval can parse it
         if (ctx.message) {
           (ctx.message as any).text = `/interval ${input.hours}`;
         }
@@ -143,8 +135,22 @@ export async function handleFreeText(ctx: MyContext): Promise<void> {
     }
   }
 
-  // No tool — just a text response
-  const textBlock = response.content.find((b) => b.type === "text");
+  // Step 2: No tool — chat response WITH history for conversational context
+  const history = getHistory(chatId);
+  const messages: Anthropic.MessageParam[] = history.map((m) => ({
+    role: m.role,
+    content: m.content,
+  }));
+
+  const chatResponse = await anthropic.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 500,
+    temperature: 1,
+    system: `${ROUTER_SYSTEM}\n\nContext: ${streakInfo} Cooldown: ${botConfig.intervalHours}h.`,
+    messages,
+  });
+
+  const textBlock = chatResponse.content.find((b) => b.type === "text");
   const reply = textBlock?.text ?? "I'm speechless. And not in a good way.";
 
   addToHistory(chatId, "assistant", reply);
