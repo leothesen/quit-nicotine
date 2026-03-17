@@ -18,8 +18,8 @@ export async function sendWeeklySummary(bot: Bot<any>): Promise<void> {
 
   const summary = await generateWeeklySummary(logs);
 
-  await bot.api.sendMessage(botConfig.chatId, `*Weekly Summary*\n\n${summary}`, {
-    parse_mode: "Markdown",
+  await bot.api.sendMessage(botConfig.chatId, `<b>Weekly Summary</b>\n\n${summary}`, {
+    parse_mode: "HTML",
   });
 
   const now = new Date();

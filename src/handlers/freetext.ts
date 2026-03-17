@@ -46,7 +46,18 @@ You have tools available. Use them when the user's intent matches:
 - get_stats: When the user asks about their stats, progress, how they're doing, usage numbers.
 - set_interval: When the user wants to change their cooldown timer.
 
-If the user is just chatting, venting, asking questions, or talking about their journey — respond directly WITHOUT using any tools. Stay in character. Keep responses under 2-3 sentences. No emojis. No markdown.`;
+If the user is just chatting, venting, asking questions, or talking about their journey — respond directly WITHOUT using any tools. Stay in character. Keep responses under 2-3 sentences. No emojis.
+
+FORMATTING — Use Telegram HTML tags naturally:
+- <b>bold</b> for milestones, key numbers, things that should hit hard
+- <i>italic</i> for sarcastic asides, subtle emphasis
+- <s>strikethrough</s> to cross out old habits or bad choices
+- <code>code</code> for exact values and stats
+Use 2-3 formatting elements per message max. Never use markdown — only HTML tags.
+
+Use line breaks between sentences. Each thought or sentiment gets its own line — never return a wall of text.
+
+CRITICAL: ONLY use HTML tags for formatting. Never use *asterisks*, _underscores_, or backticks. Use <b>, <i>, <code>, <s> tags exclusively.`;
 
 const TOOLS: Anthropic.Tool[] = [
   {
@@ -137,5 +148,5 @@ export async function handleFreeText(ctx: MyContext): Promise<void> {
   const reply = textBlock?.text ?? "I'm speechless. And not in a good way.";
 
   addToHistory(chatId, "assistant", reply);
-  await ctx.reply(reply);
+  await ctx.reply(reply, { parse_mode: "HTML" });
 }

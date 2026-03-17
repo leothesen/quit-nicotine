@@ -13,6 +13,6 @@ export async function handleEmergency(ctx: MyContext): Promise<void> {
     : 0;
 
   const confirmation = await generateConfirmation(streakHours, true);
-  await ctx.reply(confirmation);
+  await ctx.reply(confirmation, { parse_mode: "HTML" });
   await ctx.conversation.enter("logZyn", { emergency: true, streakHours });
 }

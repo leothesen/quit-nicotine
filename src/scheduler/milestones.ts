@@ -36,7 +36,7 @@ export async function checkMilestones(bot: Bot<any>): Promise<void> {
   for (const milestone of MILESTONE_HOURS) {
     if (elapsedHours >= milestone && !sentMilestones.has(milestone)) {
       const message = await generateMilestoneMessage(milestone);
-      await bot.api.sendMessage(botConfig.chatId, message);
+      await bot.api.sendMessage(botConfig.chatId, message, { parse_mode: "HTML" });
       sentMilestones.add(milestone);
     }
   }

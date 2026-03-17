@@ -21,5 +21,5 @@ export async function handleInterval(ctx: Context): Promise<void> {
 
   await updateConfig({ intervalHours: hours });
   const response = await generateIntervalChange(hours);
-  await ctx.reply(response);
+  await ctx.reply(response, { parse_mode: "HTML" });
 }

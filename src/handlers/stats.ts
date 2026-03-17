@@ -34,5 +34,5 @@ export async function handleStats(ctx: Context): Promise<void> {
     cooldownHours: botConfig.intervalHours,
   });
 
-  await ctx.reply(response);
+  await ctx.reply(response, { parse_mode: "HTML" });
 }

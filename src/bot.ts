@@ -22,7 +22,7 @@ export function createBot(): Bot<MyContext> {
     const chatId = ctx.chat.id;
     await updateConfig({ chatId });
     const welcome = await generateWelcome();
-    await ctx.reply(welcome);
+    await ctx.reply(welcome, { parse_mode: "HTML" });
   });
 
   bot.command("zyn", handleZyn as any);

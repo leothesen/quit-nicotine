@@ -32,7 +32,7 @@ export async function handleZyn(ctx: MyContext): Promise<void> {
     if (elapsed < cooldownMs) {
       const remaining = cooldownMs - elapsed;
       const denial = await generateDenial(formatTimeRemaining(remaining));
-      await ctx.reply(denial);
+      await ctx.reply(denial, { parse_mode: "HTML" });
       return;
     }
   }
@@ -43,6 +43,6 @@ export async function handleZyn(ctx: MyContext): Promise<void> {
     : 0;
 
   const confirmation = await generateConfirmation(streakHours, false);
-  await ctx.reply(confirmation);
+  await ctx.reply(confirmation, { parse_mode: "HTML" });
   await ctx.conversation.enter("logZyn", { emergency: false, streakHours });
 }

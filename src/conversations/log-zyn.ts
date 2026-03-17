@@ -30,7 +30,7 @@ export async function logZynConversation(
   const reactionMsg = await conversation.external(() =>
     opts.emergency ? generateEmergencyShame() : generateApproval()
   );
-  await ctx.reply(reactionMsg);
+  await ctx.reply(reactionMsg, { parse_mode: "HTML" });
 
   // Mental health
   await ctx.reply("Rate your mental health right now (1-10):");
@@ -79,5 +79,5 @@ export async function logZynConversation(
     generateLogResponse(mentalHealth, nicotineMg, comments)
   );
 
-  await ctx.reply(response);
+  await ctx.reply(response, { parse_mode: "HTML" });
 }
