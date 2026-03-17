@@ -26,7 +26,7 @@ IMPORTANT: Keep responses under 2-3 sentences unless asked for more. No emojis. 
 
 async function generate(userMessage: string): Promise<string> {
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-haiku-4-5-20251001",
     max_tokens: 300,
     temperature: 1,
     system: SYSTEM_PROMPT,
@@ -130,7 +130,7 @@ ${logs
 `;
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-haiku-4-5-20251001",
     max_tokens: 500,
     temperature: 1,
     system: SYSTEM_PROMPT,
