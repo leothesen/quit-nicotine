@@ -38,6 +38,33 @@ async function generate(userMessage: string): Promise<string> {
   return textBlock?.text ?? "I'm speechless. And not in a good way.";
 }
 
+export async function generateConfirmation(streakHours: number, emergency: boolean): Promise<string> {
+  const days = Math.floor(streakHours / 24);
+  const hours = Math.floor(streakHours % 24);
+  const streakLabel = days > 0 ? `${days} days and ${hours} hours` : `${Math.floor(streakHours)} hours`;
+
+  let milestoneContext: string;
+  if (streakHours < 2) {
+    milestoneContext = "They barely started.";
+  } else if (streakHours < 24) {
+    milestoneContext = "They're still in the first day. Nicotine is being cleared from their body right now. If they use now, they reset the clock on all of that.";
+  } else if (streakHours < 72) {
+    milestoneContext = "They're in the hardest withdrawal window — but nicotine is almost fully flushed. If they give in now, they'll have to go through this hell all over again.";
+  } else if (streakHours < 168) {
+    milestoneContext = "They're past peak withdrawal. Sleep is normalizing, circulation is improving, their scalp is getting real blood flow. Using now throws away days of recovery.";
+  } else if (streakHours < 720) {
+    milestoneContext = "They've been clean for over a week. Anxiety and brain fog are declining. Their hair follicles are recovering. This is real, measurable progress they'd be destroying.";
+  } else {
+    milestoneContext = "They've been clean for over a month. Their dopamine system is resetting to natural baseline. Their hair is in active recovery. This would undo weeks of healing.";
+  }
+
+  return generate(
+    `SITUATION: User wants a Zyn${emergency ? " via EMERGENCY override" : ""}. They've been clean for ${streakLabel}. ${milestoneContext}
+
+Your job: Try to talk them out of it. Reference their specific streak and what they'd be throwing away. Make them feel the weight of resetting. Then end with a short confirmation question like "Are you sure?" or "Do you really want to do this?" — keep the question part brief.${emergency ? " Extra shame for using emergency." : ""}`
+  );
+}
+
 export async function generateDenial(timeRemaining: string): Promise<string> {
   return generate(
     `SITUATION: User asked for a Zyn. Cooldown has NOT passed — ${timeRemaining} remaining. Deny them. Make the wait feel connected to what nicotine is doing to their hair and brain chemistry right now.`

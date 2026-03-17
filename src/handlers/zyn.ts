@@ -1,7 +1,7 @@
 import { Context } from "grammy";
 import { type ConversationFlavor } from "@grammyjs/conversations";
-import { getConfig, createZynLog } from "../services/notion";
-import { generateDenial, generateApproval } from "../services/claude";
+import { getConfig } from "../services/notion";
+import { generateDenial, generateConfirmation } from "../services/claude";
 
 function formatTimeRemaining(ms: number): string {
   const totalMinutes = Math.ceil(ms / 60_000);
@@ -37,10 +37,12 @@ export async function handleZyn(ctx: MyContext): Promise<void> {
     }
   }
 
-  const timestamp = new Date().toISOString();
-  const pageId = await createZynLog({ timestamp, emergency: false });
+  // Calculate streak for confirmation context
+  const streakHours = botConfig.lastZynTime
+    ? (now - new Date(botConfig.lastZynTime).getTime()) / 3_600_000
+    : 0;
 
-  const approval = await generateApproval();
-  await ctx.reply(approval);
-  await ctx.conversation.enter("logZyn", pageId);
+  const confirmation = await generateConfirmation(streakHours, false);
+  await ctx.reply(confirmation);
+  await ctx.conversation.enter("logZyn", { emergency: false, streakHours });
 }
