@@ -57,17 +57,63 @@ export async function generateEmergencyShame(): Promise<string> {
 }
 
 export async function generateMilestoneMessage(hours: number): Promise<string> {
-  const healthContext =
-    hours <= 4
-      ? "Blood flow is starting to normalize. Their scalp is getting nutrients it's been starved of. Dopamine receptors are beginning to recalibrate."
-      : hours <= 12
-        ? "Nicotine levels are dropping significantly. Hair follicles are getting real blood flow. Their brain is starting to produce its own serotonin again."
-        : hours <= 24
-          ? "Most nicotine has cleared their system. Hair growth cycle is no longer being actively sabotaged. Mood regulation is stabilizing."
-          : "Nicotine is fully cleared. Hair follicles can begin recovery. Dopamine and serotonin systems are resetting to natural baselines. This is genuinely impressive.";
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  const timeLabel = days > 0 ? `${days} days` : `${hours} hours`;
+
+  let science: string;
+  let currentSymptoms: string;
+  let tone: string;
+
+  if (hours <= 2) {
+    science = "SCIENCE: Half the nicotine from the last pouch has been eliminated from the bloodstream. The acute effects are fading.";
+    currentSymptoms = "WHAT THEY'RE FEELING: Early cravings are starting. This is the nicotine half-life kicking in — their body is noticing the drop. This will pass.";
+    tone = "Cautious. Don't get too excited. Acknowledge the cravings are real but temporary.";
+  } else if (hours <= 12) {
+    science = "SCIENCE: Nicotine levels are dropping fast. The body is starting to clear it. Blood nicotine is well below the level their brain is used to.";
+    currentSymptoms = "WHAT THEY'RE FEELING: Cravings are intensifying. They might feel restless, irritable, or have trouble concentrating. This is withdrawal — their brain demanding the chemical it's been trained to expect. It's temporary.";
+    tone = "A little more impressed they're holding. Acknowledge withdrawal is real and validate what they're going through while staying sassy.";
+  } else if (hours <= 24) {
+    science = "SCIENCE: Approaching full nicotine clearance from the bloodstream. The body is actively flushing it out.";
+    currentSymptoms = "WHAT THEY'RE FEELING: Physical withdrawal is ramping up. Irritability, anxiety, difficulty sleeping may be hitting. These peak in the next 24-48 hours, then start declining. The worst is almost here, but it WILL pass.";
+    tone = "Show real pride underneath the sass. They're heading into the hardest part — be encouraging about what's coming.";
+  } else if (hours <= 72) {
+    science = "SCIENCE: Nicotine is completely flushed from the body (the byproduct cotinine takes up to 10 days). Physical withdrawal is at or near its peak.";
+    currentSymptoms = "WHAT THEY'RE FEELING: This is the hardest stretch. Sleep disruption, intense cravings, anxiety, irritability — all peaking right now. But this is the summit. After this it gets easier every day. Their brain is already starting to rewire.";
+    tone = "Genuinely empathetic but firm. This is the hardest part and they need to hear that it's temporary. Be their anchor. Still sassy but the care is obvious.";
+  } else if (hours <= 120) {
+    science = "SCIENCE: Days 3-5 — sleep disturbances and insomnia are at maximum intensity as the brain adjusts to the absence of the stimulant. Nicotine is fully cleared.";
+    currentSymptoms = "WHAT THEY'RE FEELING: Sleep is probably terrible right now. They might be exhausted, foggy, emotional. This is the brain recalibrating its sleep architecture without nicotine. Sleep will start normalizing within the next week. Hang on.";
+    tone = "Empathetic about the sleep issues specifically. Encourage them that the worst physical symptoms are already declining even if sleep hasn't caught up yet.";
+  } else if (hours <= 336) {
+    science = `SCIENCE: ${timeLabel} clean. Sleep is beginning to normalize. Blood flow to the skin and scalp has significantly improved as nicotine's vasoconstricting effects have ended. Hair follicles are receiving proper blood supply for the first time in ages.`;
+    currentSymptoms = "WHAT THEY'RE FEELING: Sleep is improving. Physical withdrawal symptoms are declining. Cravings are less frequent but can still ambush them. Their scalp circulation is measurably better — follicles are getting nutrients they've been starved of.";
+    tone = "Genuinely warm. The sass is affectionate now. Real pride showing. Point out the circulation/hair benefits specifically.";
+  } else if (hours <= 720) {
+    science = `SCIENCE: ${timeLabel} (${weeks} weeks). Anxiety, irritability, and brain fog have greatly declined. Psychological cravings are becoming far less frequent. Scalp circulation has been restored for weeks now — hair follicles are in active recovery.`;
+    currentSymptoms = "WHAT THEY'RE FEELING: Mental clarity is returning. Mood is more stable. They might notice they're handling stress better without reaching for nicotine. Cravings are occasional now, not constant.";
+    tone = "Proud. Really proud. Still you, but the love is obvious. They've made it through the hardest parts.";
+  } else if (hours <= 2160) {
+    science = `SCIENCE: ${timeLabel} (${months} month${months > 1 ? "s" : ""}). Dopamine receptors are upregulating and returning to natural baseline. Natural motivation and overall mental health are stabilizing. The brain's reward system no longer expects nicotine.`;
+    currentSymptoms = "WHAT THEY'RE FEELING: They're experiencing genuine happiness and motivation without chemical assistance. Their baseline mood is higher than it was while using. The brain has largely rewired itself.";
+    tone = "Full pride mode. This is a genuine transformation. Celebrate the dopamine recovery — they're feeling real emotions again, not borrowed ones.";
+  } else {
+    science = `SCIENCE: ${timeLabel} (${months} months). The hair growth cycle has caught up to the restored scalp circulation. Shedding has decreased noticeably and new growth may be visible. Dopamine system is fully restored. Mental health is fundamentally better.`;
+    currentSymptoms = "WHAT THEY'RE FEELING: They might literally be able to see new hair growth. Their mental health is stable, natural, and self-sustaining. They're free.";
+    tone = "Emotional (reluctantly). This is everything you've been pushing them toward. Their hair is coming back. Their brain is healed. Be genuinely moved while staying true to yourself.";
+  }
 
   return generate(
-    `SITUATION: User has gone ${hours} hours without a Zyn. Health context: ${healthContext}. Be encouraging but still you. Weave the real health benefits into your sass.`
+    `SITUATION: User has gone ${timeLabel} without a Zyn.
+
+${science}
+
+${currentSymptoms}
+
+TONE: ${tone}
+
+Use the specific science facts naturally. If they're in a rough patch (sleep issues, peak withdrawal, anxiety), lead with empathy and tell them specifically when it will pass. If they're past the worst, celebrate the real measurable improvements. Always connect it to hair and mental health.`
   );
 }
 
