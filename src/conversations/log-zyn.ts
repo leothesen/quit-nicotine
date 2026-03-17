@@ -24,6 +24,19 @@ export async function logZynConversation(
     await response.reply("Give me a number between 1 and 10. I know it's hard to count when you're this addicted.");
   }
 
+  await ctx.reply("How many mg? (e.g. 3, 6, 9)");
+
+  let nicotineMg: number;
+  while (true) {
+    const mgResponse = await conversation.waitFor("message:text");
+    const mg = parseFloat(mgResponse.message.text);
+    if (!isNaN(mg) && mg > 0) {
+      nicotineMg = mg;
+      break;
+    }
+    await mgResponse.reply("Give me a positive number. How many mg is on the tin?");
+  }
+
   await ctx.reply("Any comments? How are you feeling? (or send /skip)");
 
   const commentResponse = await conversation.waitFor("message:text");
@@ -33,7 +46,7 @@ export async function logZynConversation(
       : commentResponse.message.text;
 
   await conversation.external(() =>
-    updateZynLog(pageId, { mentalHealth, comments })
+    updateZynLog(pageId, { mentalHealth, nicotineMg, comments })
   );
 
   const shame =

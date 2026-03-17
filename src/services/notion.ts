@@ -82,12 +82,15 @@ export async function createZynLog(entry: {
 
 export async function updateZynLog(
   pageId: string,
-  updates: { mentalHealth?: number; comments?: string }
+  updates: { mentalHealth?: number; nicotineMg?: number; comments?: string }
 ): Promise<void> {
   const properties: Record<string, any> = {};
 
   if (updates.mentalHealth !== undefined) {
     properties["Mental Health"] = { number: updates.mentalHealth };
+  }
+  if (updates.nicotineMg !== undefined) {
+    properties["Nicotine MG"] = { number: updates.nicotineMg };
   }
   if (updates.comments !== undefined) {
     properties["Comments"] = {
@@ -116,6 +119,7 @@ export async function getRecentLogs(days: number): Promise<ZynLogEntry[]> {
       id: page.id,
       timestamp: props.Timestamp?.date?.start ?? "",
       mentalHealth: props["Mental Health"]?.number ?? null,
+      nicotineMg: props["Nicotine MG"]?.number ?? null,
       comments:
         props.Comments?.rich_text?.map((t: any) => t.plain_text).join("") ?? "",
       emergency: props.Emergency?.checkbox ?? false,

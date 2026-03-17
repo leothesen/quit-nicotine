@@ -2,6 +2,7 @@ export interface ZynLogEntry {
   id: string;
   timestamp: string;
   mentalHealth: number | null;
+  nicotineMg: number | null;
   comments: string;
   emergency: boolean;
 }
