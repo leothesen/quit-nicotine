@@ -7,6 +7,7 @@ import { handleZyn } from "./handlers/zyn";
 import { handleEmergency } from "./handlers/emergency";
 import { handleStats } from "./handlers/stats";
 import { handleInterval } from "./handlers/settings";
+import { handleFreeText } from "./handlers/freetext";
 import { logZynConversation } from "./conversations/log-zyn";
 
 type MyContext = ConversationFlavor<Context>;
@@ -37,6 +38,9 @@ export function createBot(): Bot<MyContext> {
         "/help — This message"
     );
   });
+
+  // Catch-all: free text messages routed by Claude
+  bot.on("message:text", handleFreeText as any);
 
   bot.catch((err) => {
     console.error("Bot error:", err);
