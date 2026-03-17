@@ -1,4 +1,4 @@
-import { Bot, Context, session } from "grammy";
+import { Bot, Context } from "grammy";
 import { conversations, createConversation, type ConversationFlavor } from "@grammyjs/conversations";
 import { config } from "./config";
 import { updateConfig } from "./services/notion";
@@ -8,20 +8,11 @@ import { handleStats } from "./handlers/stats";
 import { handleInterval } from "./handlers/settings";
 import { logZynConversation } from "./conversations/log-zyn";
 
-interface SessionData {
-  pendingZynPageId?: string;
-}
-
-type MyContext = ConversationFlavor<Context & { session: SessionData }>;
+type MyContext = ConversationFlavor<Context>;
 
 export function createBot(): Bot<MyContext> {
   const bot = new Bot<MyContext>(config.telegramToken);
 
-  bot.use(
-    session({
-      initial: (): SessionData => ({}),
-    })
-  );
   bot.use(conversations());
   bot.use(createConversation(logZynConversation, "logZyn"));
 

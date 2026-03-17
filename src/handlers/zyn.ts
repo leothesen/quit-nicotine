@@ -3,7 +3,7 @@ import { type ConversationFlavor } from "@grammyjs/conversations";
 import { getConfig, createZynLog } from "../services/notion";
 import { getDenial, getApproval, formatTimeRemaining } from "../services/personality";
 
-type MyContext = ConversationFlavor<Context & { session: { pendingZynPageId?: string } }>;
+type MyContext = ConversationFlavor<Context>;
 
 export async function handleZyn(ctx: MyContext): Promise<void> {
   const botConfig = await getConfig();
@@ -30,7 +30,6 @@ export async function handleZyn(ctx: MyContext): Promise<void> {
   const timestamp = new Date().toISOString();
   const pageId = await createZynLog({ timestamp, emergency: false });
 
-  ctx.session.pendingZynPageId = pageId;
   await ctx.reply(getApproval());
-  await ctx.conversation.enter("logZyn");
+  await ctx.conversation.enter("logZyn", pageId);
 }

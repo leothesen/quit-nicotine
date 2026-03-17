@@ -2,18 +2,14 @@ import { type Conversation, type ConversationFlavor } from "@grammyjs/conversati
 import { Context } from "grammy";
 import { updateZynLog } from "../services/notion";
 
-type MyContext = ConversationFlavor<Context & { session: { pendingZynPageId?: string } }>;
+type MyContext = ConversationFlavor<Context>;
 type MyConversation = Conversation<MyContext, MyContext>;
 
 export async function logZynConversation(
   conversation: MyConversation,
-  ctx: MyContext
+  ctx: MyContext,
+  pageId: string
 ): Promise<void> {
-  const pageId = ctx.session.pendingZynPageId;
-  if (!pageId) {
-    await ctx.reply("Something went wrong — no Zyn entry to update.");
-    return;
-  }
 
   await ctx.reply("Rate your mental health right now (1-10):");
 
